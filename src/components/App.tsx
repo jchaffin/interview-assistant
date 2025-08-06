@@ -52,7 +52,7 @@ function App() {
     addTranscriptMessage,
     addTranscriptBreadcrumb,
   } = useTranscript();
-  const { logClientEvent, logServerEvent, loggedEvents } = useEvent();
+  const { logClientEvent, logServerEvent, eventLogs } = useEvent();
 
   const [selectedAgentName, setSelectedAgentName] = useState<string>("");
   const [selectedAgentConfigSet, setSelectedAgentConfigSet] = useState<
@@ -82,9 +82,7 @@ function App() {
   const {
     connect,
     disconnect,
-    sendUserText,
     sendEvent,
-    interrupt,
     mute,
   } = useRealtimeSession({
     onConnectionChange: (s) => setSessionStatus(s as SessionStatus),
@@ -100,7 +98,9 @@ function App() {
   const [isSuggestionsPaneExpanded, setIsSuggestionsPaneExpanded] =
     useState<boolean>(true);
   const [isLogsPopupVisible, setIsLogsPopupVisible] = useState<boolean>(false);
-
+  const [userText, setUserText] = useState<string>("");
+  const [isPTTActive, setIsPTTActive] = useState<boolean>(false);
+  const [isPTTUserSpeaking, setIsPTTUserSpeaking] = useState<boolean>(false);
   const [isAudioPlaybackEnabled, setIsAudioPlaybackEnabled] = useState<boolean>(
     () => {
       if (typeof window === 'undefined') return true;
@@ -113,13 +113,50 @@ function App() {
   const { startRecording, stopRecording, downloadRecording } =
     useAudioDownload();
 
-  const sendClientEvent = (eventObj: any, eventNameSuffix = "") => {
+  const sendClientEvent = (eventObj: Record<string, unknown>, eventNameSuffix = "") => {
     try {
       sendEvent(eventObj);
       logClientEvent(eventObj, eventNameSuffix);
     } catch (err) {
       console.error('Failed to send via SDK', err);
     }
+  };
+
+  const handleSendTextMessage = () => {
+    if (!userText.trim()) return;
+
+    try {
+      // Use sendEvent for text messages
+      sendEvent({
+        type: 'conversation.item.create',
+        item: {
+          id: Date.now().toString(),
+          type: 'message',
+          role: 'user',
+          content: [{ type: 'input_text', text: userText.trim() }],
+        },
+      });
+    } catch (err) {
+      console.error('Failed to send via SDK', err);
+    }
+
+    setUserText("");
+  };
+
+  const handleTalkButtonDown = () => {
+    if (sessionStatus !== 'CONNECTED') return;
+
+    setIsPTTUserSpeaking(true);
+    sendClientEvent({ type: 'input_audio_buffer.clear' }, 'clear PTT buffer');
+  };
+
+  const handleTalkButtonUp = () => {
+    if (sessionStatus !== 'CONNECTED' || !isPTTUserSpeaking)
+      return;
+
+    setIsPTTUserSpeaking(false);
+    sendClientEvent({ type: 'input_audio_buffer.commit' }, 'commit PTT');
+    sendClientEvent({ type: 'response.create' }, 'trigger response PTT');
   };
 
   useHandleSessionHistory();
@@ -152,7 +189,7 @@ function App() {
       const currentAgent = selectedAgentConfigSet.find(
         (a) => a.name === selectedAgentName
       );
-      addTranscriptBreadcrumb(`Agent: ${selectedAgentName}`, currentAgent);
+      addTranscriptBreadcrumb(`Agent: ${selectedAgentName}`, currentAgent ? { name: currentAgent.name } : undefined);
       updateSession(!handoffTriggeredRef.current);
       // Reset flag after handling so subsequent effects behave normally
       handoffTriggeredRef.current = false;
@@ -436,18 +473,18 @@ function App() {
               </button>
             </div>
             <div className="h-48 overflow-auto p-2">
-              {loggedEvents.length === 0 ? (
+              {eventLogs.length === 0 ? (
                 <div className="text-center text-gray-500 text-sm">
                   No logs yet
                 </div>
               ) : (
-                loggedEvents.map((log, idx) => (
+                eventLogs.map((log, idx) => (
                   <div key={idx} className="text-xs font-mono py-1 border-b border-gray-100">
                     <div className="flex justify-between">
-                      <span className={log.direction === 'client' ? 'text-blue-600' : 'text-green-600'}>
-                        {log.direction === 'client' ? '▲' : '▼'} {log.eventName}
+                      <span className={log.source === 'client' ? 'text-blue-600' : 'text-green-600'}>
+                        {log.source === 'client' ? '▲' : '▼'} {log.type}
                       </span>
-                      <span className="text-gray-500">{log.timestamp}</span>
+                      <span className="text-gray-500">{new Date(log.timestamp).toLocaleTimeString()}</span>
                     </div>
                   </div>
                 ))
@@ -460,8 +497,13 @@ function App() {
       <BottomToolbar
         sessionStatus={sessionStatus}
         onToggleConnection={onToggleConnection}
-        isEventsPaneExpanded={isLogsPopupVisible}
-        setIsEventsPaneExpanded={setIsLogsPopupVisible}
+        isPTTActive={isPTTActive}
+        setIsPTTActive={setIsPTTActive}
+        isPTTUserSpeaking={isPTTUserSpeaking}
+        handleTalkButtonDown={handleTalkButtonDown}
+        handleTalkButtonUp={handleTalkButtonUp}
+        isLogsPopupVisible={isLogsPopupVisible}
+        setIsLogsPopupVisible={setIsLogsPopupVisible}
         isAudioPlaybackEnabled={isAudioPlaybackEnabled}
         setIsAudioPlaybackEnabled={setIsAudioPlaybackEnabled}
         codec={urlCodec}

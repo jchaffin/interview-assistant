@@ -2,8 +2,6 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { TranscriptItem } from "@/types";
-import Image from "next/image";
 import { useTranscript } from "@/contexts/TranscriptContext";
 import { DownloadIcon, ClipboardCopyIcon } from "@radix-ui/react-icons";
 import { GuardrailChip } from "./GuardrailChip";
@@ -15,9 +13,9 @@ export interface TranscriptProps {
 function Transcript({
   downloadRecording,
 }: TranscriptProps) {
-  const { transcriptItems, toggleTranscriptItemExpand } = useTranscript();
+  const { messages, breadcrumbs } = useTranscript();
   const transcriptRef = useRef<HTMLDivElement | null>(null);
-  const [prevLogs, setPrevLogs] = useState<TranscriptItem[]>([]);
+  const [prevMessages, setPrevMessages] = useState<any[]>([]);
   const [justCopied, setJustCopied] = useState(false);
 
   function scrollToBottom() {
@@ -27,12 +25,12 @@ function Transcript({
   }
 
   useEffect(() => {
-    const hasNewMessage = transcriptItems.length > prevLogs.length;
-    const hasUpdatedMessage = transcriptItems.some((newItem, index) => {
-      const oldItem = prevLogs[index];
+    const hasNewMessage = messages.length > prevMessages.length;
+    const hasUpdatedMessage = messages.some((newItem, index) => {
+      const oldItem = prevMessages[index];
       return (
         oldItem &&
-        (newItem.title !== oldItem.title || newItem.data !== oldItem.data)
+        (newItem.content !== oldItem.content)
       );
     });
 
@@ -40,10 +38,8 @@ function Transcript({
       scrollToBottom();
     }
 
-    setPrevLogs(transcriptItems);
-  }, [transcriptItems]);
-
-
+    setPrevMessages(messages);
+  }, [messages, prevMessages.length]);
 
   const handleCopyTranscript = async () => {
     if (!transcriptRef.current) return;
@@ -84,114 +80,64 @@ function Transcript({
           ref={transcriptRef}
           className="overflow-auto p-4 flex flex-col gap-y-4 h-full"
         >
-          {[...transcriptItems]
-            .sort((a, b) => a.createdAtMs - b.createdAtMs)
-            .map((item) => {
-              const {
-                itemId,
-                type,
-                role,
-                data,
-                expanded,
-                timestamp,
-                title = "",
-                isHidden,
-                guardrailResult,
-              } = item;
+          {/* Render breadcrumbs first */}
+          {breadcrumbs.map((breadcrumb) => (
+            <div
+              key={breadcrumb.id}
+              className="flex flex-col justify-start items-start text-gray-500 text-sm"
+            >
+              <span className="text-xs font-mono">
+                {new Date(breadcrumb.timestamp).toLocaleTimeString()}
+              </span>
+              <div className="whitespace-pre-wrap flex items-center font-mono text-sm text-gray-800">
+                {breadcrumb.text}
+              </div>
+              {breadcrumb.agent && (
+                <div className="text-gray-800 text-left">
+                  <pre className="border-l-2 ml-1 border-gray-200 whitespace-pre-wrap break-words font-mono text-xs mb-2 mt-2 pl-2">
+                    {JSON.stringify(breadcrumb.agent, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+          ))}
 
-            if (isHidden) {
-              return null;
-            }
+          {/* Render messages */}
+          {messages.map((message) => {
+            const isUser = message.role === "user";
+            const containerClasses = `flex justify-end flex-col ${
+              isUser ? "items-end" : "items-start"
+            }`;
+            const bubbleBase = `max-w-lg p-3 ${
+              isUser ? "bg-gray-900 text-gray-100" : "bg-gray-100 text-black"
+            }`;
+            const isBracketedMessage =
+              message.content.startsWith("[") && message.content.endsWith("]");
+            const messageStyle = isBracketedMessage
+              ? 'italic text-gray-400'
+              : '';
+            const displayContent = isBracketedMessage
+              ? message.content.slice(1, -1)
+              : message.content;
 
-            if (type === "MESSAGE") {
-              const isUser = role === "user";
-              const containerClasses = `flex justify-end flex-col ${
-                isUser ? "items-end" : "items-start"
-              }`;
-              const bubbleBase = `max-w-lg p-3 ${
-                isUser ? "bg-gray-900 text-gray-100" : "bg-gray-100 text-black"
-              }`;
-              const isBracketedMessage =
-                title.startsWith("[") && title.endsWith("]");
-              const messageStyle = isBracketedMessage
-                ? 'italic text-gray-400'
-                : '';
-              const displayTitle = isBracketedMessage
-                ? title.slice(1, -1)
-                : title;
-
-              return (
-                <div key={itemId} className={containerClasses}>
-                  <div className="max-w-lg">
+            return (
+              <div key={message.id} className={containerClasses}>
+                <div className="max-w-lg">
+                  <div className={`${bubbleBase} rounded-xl`}>
                     <div
-                      className={`${bubbleBase} rounded-t-xl ${
-                        guardrailResult ? "" : "rounded-b-xl"
-                      }`}
+                      className={`text-xs ${
+                        isUser ? "text-gray-400" : "text-gray-500"
+                      } font-mono`}
                     >
-                      <div
-                        className={`text-xs ${
-                          isUser ? "text-gray-400" : "text-gray-500"
-                        } font-mono`}
-                      >
-                        {timestamp}
-                      </div>
-                      <div className={`whitespace-pre-wrap ${messageStyle}`}>
-                        <ReactMarkdown>{displayTitle}</ReactMarkdown>
-                      </div>
+                      {new Date(message.timestamp).toLocaleTimeString()}
                     </div>
-                    {guardrailResult && (
-                      <div className="bg-gray-200 px-3 py-2 rounded-b-xl">
-                        <GuardrailChip guardrailResult={guardrailResult} />
-                      </div>
-                    )}
+                    <div className={`whitespace-pre-wrap ${messageStyle}`}>
+                      <ReactMarkdown>{displayContent}</ReactMarkdown>
+                    </div>
                   </div>
                 </div>
-              );
-            } else if (type === "BREADCRUMB") {
-              return (
-                <div
-                  key={itemId}
-                  className="flex flex-col justify-start items-start text-gray-500 text-sm"
-                >
-                  <span className="text-xs font-mono">{timestamp}</span>
-                  <div
-                    className={`whitespace-pre-wrap flex items-center font-mono text-sm text-gray-800 ${
-                      data ? "cursor-pointer" : ""
-                    }`}
-                    onClick={() => data && toggleTranscriptItemExpand(itemId)}
-                  >
-                    {data && (
-                      <span
-                        className={`text-gray-400 mr-1 transform transition-transform duration-200 select-none font-mono ${
-                          expanded ? "rotate-90" : "rotate-0"
-                        }`}
-                      >
-                        ▶
-                      </span>
-                    )}
-                    {title}
-                  </div>
-                  {expanded && data && (
-                    <div className="text-gray-800 text-left">
-                      <pre className="border-l-2 ml-1 border-gray-200 whitespace-pre-wrap break-words font-mono text-xs mb-2 mt-2 pl-2">
-                        {JSON.stringify(data, null, 2)}
-                      </pre>
-                    </div>
-                  )}
-                </div>
-              );
-            } else {
-              // Fallback if type is neither MESSAGE nor BREADCRUMB
-              return (
-                <div
-                  key={itemId}
-                  className="flex justify-center text-gray-500 text-sm italic font-mono"
-                >
-                  Unknown item type: {type}{" "}
-                  <span className="ml-2 text-xs">{timestamp}</span>
-                </div>
-              );
-            }
+              </div>
+            );
           })}
         </div>
       </div>

@@ -4,8 +4,13 @@ import { SessionStatus } from '@/types';
 interface BottomToolbarProps {
   sessionStatus: SessionStatus;
   onToggleConnection: () => void;
-  isEventsPaneExpanded: boolean;
-  setIsEventsPaneExpanded: (val: boolean) => void;
+  isPTTActive: boolean;
+  setIsPTTActive: (val: boolean) => void;
+  isPTTUserSpeaking: boolean;
+  handleTalkButtonDown: () => void;
+  handleTalkButtonUp: () => void;
+  isLogsPopupVisible: boolean;
+  setIsLogsPopupVisible: (val: boolean) => void;
   isAudioPlaybackEnabled: boolean;
   setIsAudioPlaybackEnabled: (val: boolean) => void;
   codec: string;
@@ -15,8 +20,13 @@ interface BottomToolbarProps {
 function BottomToolbar({
   sessionStatus,
   onToggleConnection,
-  isEventsPaneExpanded,
-  setIsEventsPaneExpanded,
+  isPTTActive,
+  setIsPTTActive,
+  isPTTUserSpeaking,
+  handleTalkButtonDown,
+  handleTalkButtonUp,
+  isLogsPopupVisible,
+  setIsLogsPopupVisible,
   isAudioPlaybackEnabled,
   setIsAudioPlaybackEnabled,
   codec,
@@ -81,8 +91,8 @@ function BottomToolbar({
         <input
           id="logs"
           type="checkbox"
-          checked={isEventsPaneExpanded}
-          onChange={(e) => setIsEventsPaneExpanded(e.target.checked)}
+          checked={isLogsPopupVisible}
+          onChange={(e) => setIsLogsPopupVisible(e.target.checked)}
           className="w-4 h-4"
         />
         <label htmlFor="logs" className="flex items-center cursor-pointer">

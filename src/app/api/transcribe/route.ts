@@ -1,42 +1,54 @@
-import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { NextRequest, NextResponse } from "next/server";
+import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+interface TranscribeRequest {
+  audio: string;
+  language?: string;
+}
 
-export async function POST(request: NextRequest) {
+interface TranscribeResponse {
+  text: string;
+  language?: string;
+}
+
+interface ErrorResponse {
+  error: string;
+  details?: string;
+}
+
+export async function POST(request: NextRequest): Promise<NextResponse<TranscribeResponse | ErrorResponse>> {
   try {
-    const formData = await request.formData();
-    const audioFile = formData.get('audio') as File;
-
-    if (!audioFile) {
+    const body: TranscribeRequest = await request.json();
+    
+    if (!body.audio) {
       return NextResponse.json(
-        { error: 'Audio file is required' },
+        { error: "Missing audio data" },
         { status: 400 }
       );
     }
 
-    // Convert the file to a buffer
-    const buffer = Buffer.from(await audioFile.arrayBuffer());
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
 
-    // Create a temporary file-like object for OpenAI
-    const file = new File([buffer], 'audio.webm', { type: 'audio/webm' });
+    // Convert base64 to buffer and create a File object
+    const audioBuffer = Buffer.from(body.audio, 'base64');
+    const audioFile = new File([audioBuffer], 'audio.webm', { type: 'audio/webm' });
 
-    // Transcribe using OpenAI Whisper
     const transcription = await openai.audio.transcriptions.create({
-      file: file as any,
-      model: 'whisper-1',
-      language: 'en',
+      file: audioFile,
+      model: "whisper-1",
+      language: body.language,
     });
 
     return NextResponse.json({
       text: transcription.text,
+      language: body.language,
     });
   } catch (error) {
-    console.error('Transcription error:', error);
+    console.error("Error transcribing audio:", error);
     return NextResponse.json(
-      { error: 'Failed to transcribe audio' },
+      { error: "Failed to transcribe audio" },
       { status: 500 }
     );
   }

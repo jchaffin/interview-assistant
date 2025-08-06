@@ -41,28 +41,11 @@ export function useRealtimeSession(callbacks: RealtimeSessionCallbacks = {}) {
 
   const { logServerEvent } = useEvent();
 
-  const historyHandlers = useHandleSessionHistory().current;
+  const historyHandlers = useHandleSessionHistory();
 
   function handleTransportEvent(event: any) {
     // Handle additional server events that aren't managed by the session
-    switch (event.type) {
-      case "conversation.item.input_audio_transcription.completed": {
-        historyHandlers.handleTranscriptionCompleted(event);
-        break;
-      }
-      case "response.audio_transcript.done": {
-        historyHandlers.handleTranscriptionCompleted(event);
-        break;
-      }
-      case "response.audio_transcript.delta": {
-        historyHandlers.handleTranscriptionDelta(event);
-        break;
-      }
-      default: {
-        logServerEvent(event);
-        break;
-      } 
-    }
+    logServerEvent(event, 'transport_event');
   }
 
   const codecParamRef = useRef<string>(

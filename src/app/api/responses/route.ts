@@ -1,44 +1,41 @@
-import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { NextRequest, NextResponse } from "next/server";
 
-// Proxy endpoint for the OpenAI Responses API
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-  if (body.text?.format?.type === 'json_schema') {
-    return await structuredResponse(openai, body);
-  } else {
-    return await textResponse(openai, body);
-  }
+interface ResponseData {
+  text: string;
+  audio?: string;
+  metadata?: Record<string, unknown>;
 }
 
-async function structuredResponse(openai: OpenAI, body: any) {
-  try {
-    const response = await openai.responses.parse({
-      ...(body as any),
-      stream: false,
-    });
-
-    return NextResponse.json(response);
-  } catch (err: any) {
-    console.error('responses proxy error', err);
-    return NextResponse.json({ error: 'failed' }, { status: 500 }); 
-  }
+interface ErrorResponse {
+  error: string;
+  details?: string;
 }
 
-async function textResponse(openai: OpenAI, body: any) {
+export async function POST(request: NextRequest): Promise<NextResponse<ResponseData | ErrorResponse>> {
   try {
-    const response = await openai.responses.create({
-      ...(body as any),
-      stream: false,
-    });
+    const body: Record<string, unknown> = await request.json();
+    
+    // Validate required fields
+    if (!body.text || typeof body.text !== 'string') {
+      return NextResponse.json(
+        { error: "Missing or invalid 'text' field" },
+        { status: 400 }
+      );
+    }
 
-    return NextResponse.json(response);
-  } catch (err: any) {
-    console.error('responses proxy error', err);
-    return NextResponse.json({ error: 'failed' }, { status: 500 });
+    const responseData: ResponseData = {
+      text: body.text,
+      audio: body.audio as string | undefined,
+      metadata: body.metadata as Record<string, unknown> | undefined,
+    };
+
+    return NextResponse.json(responseData);
+  } catch (error) {
+    console.error("Error processing response request:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
   

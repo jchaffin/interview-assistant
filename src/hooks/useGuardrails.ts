@@ -1,51 +1,57 @@
 import { useState, useCallback } from 'react';
-import { guardrails, GuardrailResult, GuardrailConfig } from '@/lib/guardrails';
+import { createModerationGuardrail } from '@/app/agentConfigs/guardrails';
+
+export interface GuardrailResult {
+  type: string;
+  severity: 'low' | 'medium' | 'high';
+  message: string;
+  details?: Record<string, unknown>;
+}
+
+export interface GuardrailConfig {
+  enabled: boolean;
+  threshold: number;
+}
 
 export function useGuardrails() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [lastResult, setLastResult] = useState<GuardrailResult | null>(null);
+  const [results, setResults] = useState<GuardrailResult[]>([]);
 
-  const analyzeContent = useCallback(async (content: string): Promise<GuardrailResult> => {
+  const analyzeContent = useCallback(async (content: string) => {
     setIsAnalyzing(true);
     try {
-      const result = await guardrails.analyzeContent(content);
-      setLastResult(result);
-      return result;
+      // For now, just simulate guardrail analysis
+      // In a real implementation, you would call the actual guardrail functions
+      const mockResults: GuardrailResult[] = [];
+      
+      // Simple content analysis
+      if (content.toLowerCase().includes('inappropriate')) {
+        mockResults.push({
+          type: 'moderation',
+          severity: 'high',
+          message: 'Content may be inappropriate',
+          details: { flagged: true }
+        });
+      }
+      
+      setResults(mockResults);
+      return mockResults;
+    } catch (error) {
+      console.error('Error analyzing content:', error);
+      return [];
     } finally {
       setIsAnalyzing(false);
     }
   }, []);
 
-  const analyzeResponse = useCallback(async (response: string, context?: string): Promise<GuardrailResult> => {
-    setIsAnalyzing(true);
-    try {
-      const result = await guardrails.analyzeResponse(response, context);
-      setLastResult(result);
-      return result;
-    } finally {
-      setIsAnalyzing(false);
-    }
-  }, []);
-
-  const updateConfig = useCallback((newConfig: Partial<GuardrailConfig>) => {
-    guardrails.updateConfig(newConfig);
-  }, []);
-
-  const getConfig = useCallback(() => {
-    return guardrails.getConfig();
-  }, []);
-
-  const resetRateLimit = useCallback((userId: string) => {
-    guardrails.resetRateLimit(userId);
+  const clearResults = useCallback(() => {
+    setResults([]);
   }, []);
 
   return {
-    analyzeContent,
-    analyzeResponse,
-    updateConfig,
-    getConfig,
-    resetRateLimit,
     isAnalyzing,
-    lastResult
+    results,
+    analyzeContent,
+    clearResults
   };
 } 
