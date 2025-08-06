@@ -450,10 +450,12 @@ function App() {
 
       </div>
 
-      <div className="flex flex-1 gap-2 px-2 overflow-hidden relative">
-        <Transcript
-          downloadRecording={downloadRecording}
-        />
+      <div className="flex flex-1 gap-2 px-2 overflow-hidden relative flex-col md:flex-row">
+        <div className="flex-1">
+          <Transcript
+            downloadRecording={downloadRecording}
+          />
+        </div>
 
         <Suggestions isExpanded={isSuggestionsPaneExpanded} />
       </div>
