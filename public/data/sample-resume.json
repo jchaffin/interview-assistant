@@ -1,0 +1,137 @@
+{
+  "experience": [
+    {
+      "company": "TechCorp Solutions",
+      "position": "Senior Software Engineer",
+      "duration": "2021-2024",
+      "skills": ["React", "TypeScript", "Node.js", "AWS", "Docker", "MongoDB"],
+      "achievements": [
+        "Led development of microservices architecture serving 100K+ users",
+        "Reduced API response time by 40% through optimization",
+        "Mentored 3 junior developers and conducted code reviews",
+        "Implemented CI/CD pipeline reducing deployment time by 60%"
+      ]
+    },
+    {
+      "company": "StartupXYZ",
+      "position": "Full Stack Developer",
+      "duration": "2019-2021",
+      "skills": ["JavaScript", "Python", "PostgreSQL", "Redis", "Git", "REST APIs"],
+      "achievements": [
+        "Built scalable web application from concept to 50K+ users",
+        "Designed and implemented RESTful APIs",
+        "Optimized database queries improving performance by 35%",
+        "Collaborated with cross-functional teams in agile environment"
+      ]
+    },
+    {
+      "company": "Digital Innovations Inc",
+      "position": "Frontend Developer",
+      "duration": "2018-2019",
+      "skills": ["HTML", "CSS", "JavaScript", "jQuery", "Bootstrap", "Responsive Design"],
+      "achievements": [
+        "Developed responsive web interfaces for e-commerce platform",
+        "Improved user experience metrics by 25%",
+        "Implemented accessibility features for WCAG compliance",
+        "Reduced page load times by 30%"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of Technology",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "year": "2018"
+    },
+    {
+      "institution": "Code Academy",
+      "degree": "Certification",
+      "field": "Full Stack Web Development",
+      "year": "2019"
+    }
+  ],
+  "skills": {
+    "technical": [
+      "JavaScript/TypeScript",
+      "React.js",
+      "Node.js",
+      "Python",
+      "PostgreSQL",
+      "MongoDB",
+      "AWS",
+      "Docker",
+      "Git",
+      "REST APIs",
+      "GraphQL",
+      "Microservices",
+      "CI/CD",
+      "Agile/Scrum"
+    ],
+    "soft": [
+      "Team Leadership",
+      "Problem Solving",
+      "Communication",
+      "Project Management",
+      "Mentoring",
+      "Code Review",
+      "Technical Documentation",
+      "Cross-functional Collaboration"
+    ],
+    "languages": [
+      "English (Native)",
+      "Spanish (Conversational)"
+    ]
+  },
+  "projects": [
+    {
+      "name": "E-Commerce Platform",
+      "description": "Full-stack e-commerce solution with payment integration, inventory management, and admin dashboard",
+      "technologies": ["React", "Node.js", "PostgreSQL", "Stripe API", "AWS S3"],
+      "outcomes": [
+        "Processed $500K+ in transactions",
+        "Reduced cart abandonment by 20%",
+        "Achieved 99.9% uptime"
+      ]
+    },
+    {
+      "name": "Task Management App",
+      "description": "Real-time collaborative task management application with team features and analytics",
+      "technologies": ["TypeScript", "React", "Socket.io", "MongoDB", "Redis"],
+      "outcomes": [
+        "Used by 10K+ active users",
+        "Improved team productivity by 30%",
+        "Featured in tech blog"
+      ]
+    },
+    {
+      "name": "Data Visualization Dashboard",
+      "description": "Interactive dashboard for business intelligence with real-time data processing",
+      "technologies": ["D3.js", "Python", "Pandas", "Flask", "PostgreSQL"],
+      "outcomes": [
+        "Processed 1M+ data points daily",
+        "Reduced reporting time by 70%",
+        "Used by executive team for decision making"
+      ]
+    }
+  ],
+  "certifications": [
+    {
+      "name": "AWS Certified Developer",
+      "issuer": "Amazon Web Services",
+      "year": "2023"
+    },
+    {
+      "name": "MongoDB Developer",
+      "issuer": "MongoDB University",
+      "year": "2022"
+    }
+  ],
+  "interests": [
+    "Open Source Contribution",
+    "Machine Learning",
+    "Blockchain Technology",
+    "Tech Blogging",
+    "Hackathons"
+  ]
+}
