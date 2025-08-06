@@ -194,7 +194,7 @@ function Suggestions({ isExpanded }: SuggestionsProps) {
       case 'medium':
         return '⚠️';
       default:
-        return <Lightbulb className="w-4 h-4" />;
+        return null;
     }
   };
 
@@ -235,9 +235,14 @@ function Suggestions({ isExpanded }: SuggestionsProps) {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-2">
-                        <span className={`text-sm font-medium px-2 py-1 rounded-full border ${getUrgencyColor(suggestion.urgency)}`}>
+                        <span className={`text-sm font-medium px-2 py-1 rounded-full border ${getUrgencyColor(suggestion.urgency)} flex items-center gap-1`}>
                           {suggestion.urgency === 'high' ? 'URGENT' : 
-                           suggestion.urgency === 'medium' ? 'Important' : 'Answer'}
+                           suggestion.urgency === 'medium' ? 'Important' : (
+                             <>
+                               <Lightbulb className="w-3 h-3" />
+                               Answer
+                             </>
+                           )}
                         </span>
                         <div className="text-gray-500 text-xs">
                           {suggestion.timestamp}

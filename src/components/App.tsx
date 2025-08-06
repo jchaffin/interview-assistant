@@ -2,14 +2,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
-import { Globe, Lightbulb } from "lucide-react";
-
-import Image from "next/image";
+import { Globe } from "lucide-react";
 
 // UI components
 import Transcript from "@/components/Transcript";
 import Suggestions from "@/components/Suggestions";
-import LogsPopup from "@/components/LogsPopup";
 import BottomToolbar from "@/components/BottomToolbar";
 
 // Types
@@ -103,7 +100,7 @@ function App() {
   const [isSuggestionsPaneExpanded, setIsSuggestionsPaneExpanded] =
     useState<boolean>(true);
   const [isLogsPopupVisible, setIsLogsPopupVisible] = useState<boolean>(false);
-  const [userText, setUserText] = useState<string>("");
+
   const [isAudioPlaybackEnabled, setIsAudioPlaybackEnabled] = useState<boolean>(
     () => {
       if (typeof window === 'undefined') return true;
@@ -262,18 +259,7 @@ function App() {
     return;
   }
 
-  const handleSendTextMessage = () => {
-    if (!userText.trim()) return;
-    interrupt();
 
-    try {
-      sendUserText(userText.trim());
-    } catch (err) {
-      console.error('Failed to send via SDK', err);
-    }
-
-    setUserText("");
-  };
 
 
 
@@ -286,23 +272,7 @@ function App() {
     }
   };
 
-  const handleAgentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newAgentConfig = e.target.value;
-    const url = new URL(window.location.toString());
-    url.searchParams.set("agentConfig", newAgentConfig);
-    window.location.replace(url.toString());
-  };
 
-  const handleSelectedAgentChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const newAgentName = e.target.value;
-    // Reconnect session with the newly selected agent as root so that tool
-    // execution works correctly.
-    disconnectFromRealtime();
-    setSelectedAgentName(newAgentName);
-    // connectToRealtime will be triggered by effect watching selectedAgentName
-  };
 
   // Because we need a new connection, refresh the page when codec changes
   const handleCodecChange = (newCodec: string) => {
@@ -384,8 +354,6 @@ function App() {
       stopRecording();
     };
   }, [sessionStatus]);
-
-  const agentSetKey = searchParams.get("agentConfig") || "default";
 
   return (
     <div className="text-base flex flex-col h-screen bg-gray-100 text-gray-800 relative">

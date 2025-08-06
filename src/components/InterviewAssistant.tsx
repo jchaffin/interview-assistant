@@ -2,8 +2,8 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createAssistantSupervisorConfig, AssistantSupervisorConfig, ResumeData } from '@/app/agentConfigs/chatSupervisor/assistantSupervisor';
-import { sessionManager } from '@/lib/session';
-import { guardrails } from '@/lib/guardrails';
+
+
 import { Mic, MicOff, Settings, Volume2, VolumeX, User, MessageSquare, Send, Sparkles, FileText, Brain } from 'lucide-react';
 
 interface Message {
