@@ -12,9 +12,9 @@ function Suggestions({ isExpanded }: SuggestionsProps) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const suggestionsContainerRef = useRef<HTMLDivElement | null>(null);
-  const processedEventsRef = useRef<Set<string>>(new Set());
-  const { eventLogs } = useEvent();
-  const { messages } = useTranscript();
+  const processedEventsRef = useRef<Set<number>>(new Set());
+  const { loggedEvents } = useEvent();
+  const { transcriptItems } = useTranscript();
 
   // Listen to agent's voice audio and generate answer suggestions for the candidate
   const generateSuggestions = useCallback(async (context: string) => {
@@ -46,18 +46,19 @@ function Suggestions({ isExpanded }: SuggestionsProps) {
 
   // Process new events to generate suggestions
   useEffect(() => {
-    const newEvents = eventLogs.filter(event => !processedEventsRef.current.has(event.id));
+    const newEvents = loggedEvents.filter(event => !processedEventsRef.current.has(event.id));
     
     newEvents.forEach(event => {
       processedEventsRef.current.add(event.id);
       
       // Generate suggestions based on certain event types
-      if (event.type.includes('response') || event.type.includes('message')) {
-        const context = `Recent conversation: ${messages.slice(-3).map(m => `${m.role}: ${m.content}`).join(' | ')}`;
+      if (event.eventName.includes('response') || event.eventName.includes('message')) {
+        const messageItems = transcriptItems.filter(item => item.type === 'MESSAGE');
+        const context = `Recent conversation: ${messageItems.slice(-3).map(m => `${m.role}: ${m.title}`).join(' | ')}`;
         generateSuggestions(context);
       }
     });
-  }, [eventLogs, messages, generateSuggestions]);
+  }, [loggedEvents, transcriptItems, generateSuggestions]);
 
   // Auto-scroll to bottom when new suggestions arrive
   useEffect(() => {
@@ -69,7 +70,7 @@ function Suggestions({ isExpanded }: SuggestionsProps) {
   return (
     <div
       className={
-        (isExpanded ? "w-1/3 overflow-auto" : "w-0 overflow-hidden opacity-0") +
+        (isExpanded ? "w-1/2 overflow-auto" : "w-0 overflow-hidden opacity-0") +
         " transition-all rounded-xl duration-200 ease-in-out flex-col bg-white"
       }
       ref={suggestionsContainerRef}

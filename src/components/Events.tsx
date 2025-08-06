@@ -11,24 +11,24 @@ function Events({ isExpanded }: EventsProps) {
   const [prevEventLogs, setPrevEventLogs] = useState<any[]>([]);
   const eventLogsContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const { eventLogs } = useEvent();
+  const { loggedEvents } = useEvent();
 
-  const getDirectionArrow = (source: string) => {
-    if (source === "client") return { symbol: "▲", color: "#7f5af0" };
-    if (source === "server") return { symbol: "▼", color: "#2cb67d" };
+  const getDirectionArrow = (direction: string) => {
+    if (direction === "client") return { symbol: "▲", color: "#7f5af0" };
+    if (direction === "server") return { symbol: "▼", color: "#2cb67d" };
     return { symbol: "•", color: "#555" };
   };
 
   useEffect(() => {
-    const hasNewEvent = eventLogs.length > prevEventLogs.length;
+    const hasNewEvent = loggedEvents.length > prevEventLogs.length;
 
     if (isExpanded && hasNewEvent && eventLogsContainerRef.current) {
       eventLogsContainerRef.current.scrollTop =
         eventLogsContainerRef.current.scrollHeight;
     }
 
-    setPrevEventLogs(eventLogs);
-  }, [eventLogs, isExpanded, prevEventLogs.length]);
+    setPrevEventLogs(loggedEvents);
+  }, [loggedEvents, isExpanded, prevEventLogs.length]);
 
   return (
     <div
@@ -44,9 +44,9 @@ function Events({ isExpanded }: EventsProps) {
             <span className="font-semibold">Technical Logs</span>
           </div>
           <div>
-            {eventLogs.map((log, idx) => {
-              const arrowInfo = getDirectionArrow(log.source);
-              const isError = log.type.toLowerCase().includes("error");
+            {loggedEvents.map((log, idx) => {
+              const arrowInfo = getDirectionArrow(log.direction);
+              const isError = log.eventName.toLowerCase().includes("error");
 
               return (
                 <div
@@ -67,18 +67,18 @@ function Events({ isExpanded }: EventsProps) {
                           (isError ? "text-red-600" : "text-gray-800")
                         }
                       >
-                        {log.type}
+                        {log.eventName}
                       </span>
                     </div>
                     <div className="text-gray-500 ml-1 text-xs whitespace-nowrap">
-                      {new Date(log.timestamp).toLocaleTimeString()}
+                      {log.timestamp}
                     </div>
                   </div>
 
-                  {log.data && Object.keys(log.data).length > 0 && (
+                  {log.eventData && Object.keys(log.eventData).length > 0 && (
                     <div className="text-gray-800 text-left">
                       <pre className="border-l-2 ml-1 border-gray-200 whitespace-pre-wrap break-words font-mono text-xs mb-2 mt-2 pl-2">
-                        {JSON.stringify(log.data, null, 2)}
+                        {JSON.stringify(log.eventData, null, 2)}
                       </pre>
                     </div>
                   )}

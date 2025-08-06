@@ -12,24 +12,24 @@ function LogsPopup({ isVisible, onClose }: LogsPopupProps) {
   const [prevEventLogs, setPrevEventLogs] = useState<any[]>([]);
   const eventLogsContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const { eventLogs } = useEvent();
+  const { loggedEvents } = useEvent();
 
-  const getDirectionArrow = (source: string) => {
-    if (source === "client") return { symbol: "▲", color: "#7f5af0" };
-    if (source === "server") return { symbol: "▼", color: "#2cb67d" };
+  const getDirectionArrow = (direction: string) => {
+    if (direction === "client") return { symbol: "▲", color: "#7f5af0" };
+    if (direction === "server") return { symbol: "▼", color: "#2cb67d" };
     return { symbol: "•", color: "#555" };
   };
 
   useEffect(() => {
-    const hasNewEvent = eventLogs.length > prevEventLogs.length;
+    const hasNewEvent = loggedEvents.length > prevEventLogs.length;
 
     if (isVisible && hasNewEvent && eventLogsContainerRef.current) {
       eventLogsContainerRef.current.scrollTop =
         eventLogsContainerRef.current.scrollHeight;
     }
 
-    setPrevEventLogs(eventLogs);
-  }, [eventLogs, isVisible, prevEventLogs.length]);
+    setPrevEventLogs(loggedEvents);
+  }, [loggedEvents, isVisible, prevEventLogs.length]);
 
   if (!isVisible) return null;
 
@@ -52,14 +52,14 @@ function LogsPopup({ isVisible, onClose }: LogsPopupProps) {
           ref={eventLogsContainerRef}
           className="flex-1 overflow-auto p-4"
         >
-          {eventLogs.length === 0 ? (
+          {loggedEvents.length === 0 ? (
             <div className="text-center text-gray-500">
               No logs yet
             </div>
           ) : (
-            eventLogs.map((log, idx) => {
-              const arrowInfo = getDirectionArrow(log.source);
-              const isError = log.type.toLowerCase().includes("error");
+            loggedEvents.map((log, idx) => {
+              const arrowInfo = getDirectionArrow(log.direction);
+              const isError = log.eventName.toLowerCase().includes("error");
 
               return (
                 <div
@@ -80,18 +80,18 @@ function LogsPopup({ isVisible, onClose }: LogsPopupProps) {
                           (isError ? "text-red-600" : "text-gray-800")
                         }
                       >
-                        {log.type}
+                        {log.eventName}
                       </span>
                     </div>
                     <div className="text-gray-500 text-xs whitespace-nowrap">
-                      {new Date(log.timestamp).toLocaleTimeString()}
+                      {log.timestamp}
                     </div>
                   </div>
 
-                  {log.data && Object.keys(log.data).length > 0 && (
+                  {log.eventData && Object.keys(log.eventData).length > 0 && (
                     <div className="text-gray-800 text-left mt-2">
                       <pre className="border-l-2 ml-1 border-gray-200 whitespace-pre-wrap break-words font-mono text-xs pl-2">
-                        {JSON.stringify(log.data, null, 2)}
+                        {JSON.stringify(log.eventData, null, 2)}
                       </pre>
                     </div>
                   )}

@@ -52,7 +52,7 @@ function App() {
     addTranscriptMessage,
     addTranscriptBreadcrumb,
   } = useTranscript();
-  const { logClientEvent, logServerEvent, eventLogs } = useEvent();
+  const { logClientEvent, logServerEvent, loggedEvents } = useEvent();
 
   const [selectedAgentName, setSelectedAgentName] = useState<string>("");
   const [selectedAgentConfigSet, setSelectedAgentConfigSet] = useState<
@@ -473,18 +473,18 @@ function App() {
               </button>
             </div>
             <div className="h-48 overflow-auto p-2">
-              {eventLogs.length === 0 ? (
+              {loggedEvents.length === 0 ? (
                 <div className="text-center text-gray-500 text-sm">
                   No logs yet
                 </div>
               ) : (
-                eventLogs.map((log, idx) => (
+                loggedEvents.map((log, idx) => (
                   <div key={idx} className="text-xs font-mono py-1 border-b border-gray-100">
                     <div className="flex justify-between">
-                      <span className={log.source === 'client' ? 'text-blue-600' : 'text-green-600'}>
-                        {log.source === 'client' ? '▲' : '▼'} {log.type}
+                      <span className={log.direction === 'client' ? 'text-blue-600' : 'text-green-600'}>
+                        {log.direction === 'client' ? '▲' : '▼'} {log.eventName}
                       </span>
-                      <span className="text-gray-500">{new Date(log.timestamp).toLocaleTimeString()}</span>
+                      <span className="text-gray-500">{log.timestamp}</span>
                     </div>
                   </div>
                 ))
