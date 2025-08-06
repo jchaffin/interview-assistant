@@ -46,9 +46,9 @@ function LogsPopup({ isVisible, onClose }: LogsPopupProps) {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
+    <div className="fixed bottom-20 right-4 z-20">
       <div 
-        className="w-full h-2/3 bg-white rounded-t-xl shadow-2xl flex flex-col"
+        className="w-96 h-64 bg-white rounded-lg shadow-2xl flex flex-col border border-gray-200"
         ref={eventLogsContainerRef}
       >
         {/* Header */}
@@ -68,7 +68,7 @@ function LogsPopup({ isVisible, onClose }: LogsPopupProps) {
         </div>
 
         {/* Logs Content */}
-        <div className="flex-1 overflow-auto">
+        <div className="h-48 overflow-auto">
           {loggedEvents.length === 0 ? (
             <div className="p-6 text-center text-gray-500">
               <div className="text-2xl mb-2">📋</div>

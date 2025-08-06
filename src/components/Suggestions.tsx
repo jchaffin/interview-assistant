@@ -5,6 +5,7 @@ import { useEvent } from "@/contexts/EventContext";
 import { useTranscript } from "@/contexts/TranscriptContext";
 import { LoggedEvent } from "@/types";
 import { interviewConfig } from "@/app/agentConfigs/interview/config";
+import { Lightbulb } from "lucide-react";
 
 export interface SuggestionsProps {
   isExpanded: boolean;
@@ -193,7 +194,7 @@ function Suggestions({ isExpanded }: SuggestionsProps) {
       case 'medium':
         return '⚠️';
       default:
-        return '💡';
+        return <Lightbulb className="w-4 h-4" />;
     }
   };
 
@@ -216,7 +217,9 @@ function Suggestions({ isExpanded }: SuggestionsProps) {
           <div>
             {suggestions.length === 0 ? (
               <div className="p-6 text-center text-gray-500">
-                <div className="text-2xl mb-2">💡</div>
+                <div className="mb-2 flex justify-center">
+                  <Lightbulb className="w-8 h-8 text-gray-400" />
+                </div>
                 <div className="text-sm">No coaching tips yet</div>
                 <div className="text-xs mt-1">Start an interview to see helpful suggestions</div>
               </div>
