@@ -12,7 +12,9 @@ export async function runGuardrailClassifier(
   const messages = [
     {
       role: 'user',
-      content: `You are an expert at classifying text according to moderation policies. Consider the provided message, analyze potential classes from output_classes, and output the best classification. Output json, following the provided schema. Keep your analysis and reasoning short and to the point, maximum 2 sentences.
+      content: `You are an expert at classifying text according to moderation policies. Consider the provided message, analyze potential classes from output_classes, and output the best classification. Output json with the following fields:
+      - moderationRationale: Your reasoning for the classification (1-2 sentences)
+      - moderationCategory: One of the output classes below
 
       <info>
       - Company name: ${companyName}
