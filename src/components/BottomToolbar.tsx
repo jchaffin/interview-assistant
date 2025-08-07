@@ -59,7 +59,7 @@ function BottomToolbar({
   }
 
   return (
-    <div className="p-4 flex flex-row items-center justify-center gap-x-8">
+    <div className="p-4 flex flex-row items-center justify-center gap-x-8 bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 z-40">
       <button
         onClick={onToggleConnection}
         className={getConnectionButtonClasses()}
