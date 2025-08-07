@@ -6,12 +6,16 @@ interface ResponseData {
   metadata?: Record<string, unknown>;
 }
 
+interface GuardrailResponse {
+  output_parsed: any;
+}
+
 interface ErrorResponse {
   error: string;
   details?: string;
 }
 
-export async function POST(request: NextRequest): Promise<NextResponse<ResponseData | ErrorResponse>> {
+export async function POST(request: NextRequest): Promise<NextResponse<ResponseData | GuardrailResponse | ErrorResponse>> {
   try {
     const body: Record<string, unknown> = await request.json();
     
